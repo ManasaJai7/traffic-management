@@ -1,0 +1,15 @@
+UI layer       : Main -> MainFrame -> DashboardPanel, RoutingPanel, HistoryPanel,
+                 CrudPanel (abstract) <- JunctionPanel, RoadPanel, VehiclePanel, SignalPanel
+                 NetworkPanel (map), UI (theme/components), ActivityLog
+Logic layer    : TrafficController (memory graph + workflow) uses RoutePlanner
+                 RoutePlanner : Dijkstra with PriorityQueue<NodeDistance>
+Model          : Junction, RoadSegment, EmergencyVehicle, RoutingRequest, RouteResult
+                 TrafficEvent (abstract) <- ClosureEvent, ReopenEvent, CongestionEvent
+Data layer     : Db (JDBC helper) -> DatabaseConnection (SQLite), DatabaseSetup (schema + seed)
+
+Relationships
+ TrafficController 1 --- * Junction, RoadSegment, EmergencyVehicle (loaded from SQLite)
+ RoadSegment * --- 1 Junction (from) and 1 Junction (to)
+ RoutingRequest * --- 1 EmergencyVehicle ; destination -> Junction
+ TrafficEvent * --- 1 RoadSegment
+ Every screen implements Refreshable and is refreshed when TrafficController.dataChanged() fires.
